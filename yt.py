@@ -1,8 +1,19 @@
-import logging
 import os
+import threading
+from flask import Flask
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 import yt_dlp
+
+app_flask = Flask(__name__)
+
+@app_flask.route('/')
+def home():
+    return "Bot is running!"
+
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    app_flask.run(host="0.0.0.0", port=port)
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -39,6 +50,8 @@ async def download_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"Error: {str(e)}")
 
 if __name__ == '__main__':
+    threading.Thread(target=run_web, daemon=True).start()
+    
     BOT_TOKEN = "9129946318:AAFYonUtTpm_3D1IbA7O5hJ5pTKkosv48qQ"
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     
